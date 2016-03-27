@@ -165,6 +165,7 @@ ARGUMENTS:
    -i                show some replay info about the osr file that's being imported
    -v                run in verbose mode
    -l                force local mode (mysql will be ignored even if configured properly)
+   -r				 reset /output at the start and /replays at the end, so we always have a clean environment
    -h, --help        show help
    """.format(VERSION))
 	sys.exit()
@@ -173,18 +174,10 @@ print("OGAIAGO v{}".format(VERSION))
 
 # Reset argument
 if ("-r" in sys.argv):
-	print("Resetting replays/")
-	if (os.path.exists("replays/")):
-		for i in glob.glob("replays/*"):
-			os.remove(i)
-
-	print("Resetting output/")
+	printVerbose("Resetting output/")
 	if (os.path.exists("output/")):
 		for i in glob.glob("output/*"):
 			os.remove(i)
-
-	print("Done")
-	sys.exit()
 
 # Make sure replays folder exists
 if (not os.path.exists("replays/")):
@@ -332,3 +325,10 @@ if (conf.mysql):
 	print("Done! Please copy all the files inside the \"output\" folder in your \"osu.ppy.sh/replays\" folder.")
 else:
 	print("Done! Please execute \"output/queries.sql\" on your MySQL server and copy all the .osr files inside the \"output\" folder in your \"osu.ppy.sh/replays\" folder. You also have to rename them with this format: replay_SCOREID.osr")
+
+# Reset input if needed
+if ("-r" in sys.argv):
+	printVerbose("Resetting replays/")
+	if (os.path.exists("replays/")):
+		for i in glob.glob("replays/*"):
+			os.remove(i)
