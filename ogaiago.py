@@ -150,6 +150,14 @@ def getTimeStamp():
 	dt = datetime.datetime.now()
 	return int("{:02d}{:02d}{:02d}{:02d}{:02d}{:02d}".format(dt.year-2000, dt.month, dt.day, dt.hour, dt.minute, dt.second))
 
+# Defult CLI options
+showInfo = False
+verbose = False
+
+# Verbose argument
+if ("-v" in sys.argv):
+	verbose = True
+
 # Help argument
 if ("-h" in sys.argv or "--help" in sys.argv):
 	print("""NAME:
@@ -174,7 +182,7 @@ print("OGAIAGO v{}".format(VERSION))
 
 # Reset argument
 if ("-r" in sys.argv):
-	printVerbose("Resetting output/")
+	printVerbose("Cleaning output/")
 	if (os.path.exists("output/")):
 		for i in glob.glob("output/*"):
 			os.remove(i)
@@ -196,19 +204,12 @@ if (os.listdir("replays/") == []):
 conf = config("config.ini")
 conf.loadConfig()
 
-# Defult CLI options
-showInfo = False
-verbose = False
-
 # CLI arguments
 # TODO: Single replay mode
 # TODO: Generate config.ini
 # TODO: Reset replays and output
 if ("-i" in sys.argv):
 	showInfo = True
-
-if ("-v" in sys.argv):
-	verbose = True
 
 if ("-l" in sys.argv):
 	conf.mysql = False
@@ -328,7 +329,7 @@ else:
 
 # Reset input if needed
 if ("-r" in sys.argv):
-	printVerbose("Resetting replays/")
+	printVerbose("Cleaning replays/")
 	if (os.path.exists("replays/")):
 		for i in glob.glob("replays/*"):
 			os.remove(i)
