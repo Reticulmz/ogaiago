@@ -3,8 +3,8 @@ import sys
 import os
 import configparser
 import pymysql
-import time
 import glob
+import datetime
 
 VERSION = "1.0.0"
 
@@ -146,7 +146,11 @@ def printVerbose(s):
 	if (verbose):
 		print(s)
 
+def getTimeStamp():
+	dt = datetime.datetime.now()
+	return int("{:02d}{:02d}{:02d}{:02d}{:02d}{:02d}".format(dt.year-2000, dt.month, dt.day, dt.hour, dt.minute, dt.second))
 
+# Help argument
 if ("-h" in sys.argv or "--help" in sys.argv):
 	print("""NAME:
    ogaiago - Submit scores and replays to ripple from replays
@@ -167,18 +171,33 @@ ARGUMENTS:
 
 print("OGAIAGO v{}".format(VERSION))
 
+# Reset argument
+if ("-r" in sys.argv):
+	print("Resetting replays/")
+	if (os.path.exists("replays/")):
+		for i in glob.glob("replays/*"):
+			os.remove(i)
+
+	print("Resetting output/")
+	if (os.path.exists("output/")):
+		for i in glob.glob("output/*"):
+			os.remove(i)
+
+	print("Done")
+	sys.exit()
+
 # Make sure replays folder exists
 if (not os.path.exists("replays/")):
 	os.makedirs("replays/")
+
+# Make sure output folder exists
+if (not os.path.exists("output/")):
+	os.makedirs("output/")
 
 # Make sure the folder is not empty
 if (os.listdir("replays/") == []):
 	print("Put your .osr replays inside \"replays\" folder and run ogaiago again.")
 	sys.exit()
-
-# Create output folder if needed
-if (not os.path.exists("output/")):
-	os.makedirs("output/")
 
 # Load config
 conf = config("config.ini")
@@ -284,7 +303,7 @@ for i in fileList:
 		printVerbose("Working on local mode. I don't know if this is a top score. Let's assume it is.")
 
 	# Build query
-	query = "INSERT INTO scores (id, beatmap_md5, username, score, max_combo, full_combo, mods, 300_count, 100_count, 50_count, katus_count, gekis_count, misses_count, time, play_mode, completed, accuracy) VALUES (NULL, '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}');".format(replayData["beatmapHash"], replayData["playerName"], replayData["score"], replayData["maxCombo"], replayData["fullCombo"], replayData["mods"], replayData["count300"], replayData["count100"], replayData["count50"], replayData["countKatu"], replayData["countGeki"], replayData["countMiss"], int(time.time()), replayData["gameMode"], completed, acc)
+	query = "INSERT INTO scores (id, beatmap_md5, username, score, max_combo, full_combo, mods, 300_count, 100_count, 50_count, katus_count, gekis_count, misses_count, time, play_mode, completed, accuracy) VALUES (NULL, '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}');".format(replayData["beatmapHash"], replayData["playerName"], replayData["score"], replayData["maxCombo"], replayData["fullCombo"], replayData["mods"], replayData["count300"], replayData["count100"], replayData["count50"], replayData["countKatu"], replayData["countGeki"], replayData["countMiss"], int(getTimeStamp()), replayData["gameMode"], completed, acc)
 	if (conf.mysql):
 		try:
 			conn.execute(query)
