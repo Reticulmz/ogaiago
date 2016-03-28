@@ -1,6 +1,7 @@
 import struct
 import sys
 import os
+import shutil
 import configparser
 import pymysql
 import glob
@@ -49,6 +50,7 @@ class config:
 			self.config.get("db","username")
 			self.config.get("db","password")
 			self.config.get("db","database")
+			self.config.get("settings","replaysFolder")
 			self.mysql = True
 		except:
 			print("Invalid syntax in config.ini. Working in local mode.")
@@ -229,7 +231,6 @@ conf.loadConfig()
 # CLI arguments
 # TODO: Single replay mode
 # TODO: Generate config.ini
-# TODO: Reset replays and output
 if ("-i" in sys.argv):
 	showInfo = True
 
@@ -344,8 +345,16 @@ for i in fileList:
 	print("{} imported!".format(os.path.basename(i)))
 
 if (conf.mysql):
-	# TODO: Auto copy files
-	print("Done! Please copy all the files inside the \"output\" folder in your \"osu.ppy.sh/replays\" folder.")
+	# Auto copy files if needed
+	if (os.path.exists(conf.config["settings"]["replaysFolder"])):
+		for i in glob.glob(os.path.join("output/", '*.*')):
+			printVerbose("Copying {} -> {}".format(i, conf.config["settings"]["replaysFolder"]))
+			shutil.copy(i, conf.config["settings"]["replaysFolder"])
+
+		print("Done!")
+	else:
+		printVerbose("replaysFolder path doesn't exist, raw replays copy skipped")
+		print("Done! Please copy all the files inside the \"output\" folder in your \"osu.ppy.sh/replays\" folder.")
 else:
 	print("Done! Please execute \"output/queries.sql\" on your MySQL server and copy all the .osr files inside the \"output\" folder in your \"osu.ppy.sh/replays\" folder. You also have to rename them with this format: replay_SCOREID.osr")
 
