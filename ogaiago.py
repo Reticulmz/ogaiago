@@ -71,9 +71,31 @@ class dataTypes:
 def clamp(value, low, high):
 	return min(max(value,low),high)
 
-def calcAcc(c300, c100, c50, cMiss):
-	totalHits = c300+c100+c50+cMiss
-	return clamp(float(c50 * 50 + c100 * 100 + c300 * 300) / (totalHits * 300), 0.0, 1.0)
+def calcAcc(c300, c100, c50, cGeki, cKatu, cMiss, gameMode):
+	if (gameMode == 0):
+		# std
+		totalPoints = c50*50+c100*100+c300*300
+		totalHits = c300+c100+c50+cMiss
+		return totalPoints/(totalHits*300)
+	elif (gameMode == 1):
+		# taiko
+		totalPoints = (c100*50)+(c300*100)
+		totalHits = cMiss+c100+c300
+		return totalPoints/(totalHits*100)
+	elif (gameMode == 2):
+		# ctb
+		fruits = c300+c100+c50
+		totalFruits = fruits+cMiss+cKatu
+		return fruits/totalFruits
+	elif (gameMode == 3):
+		# mania
+		totalPoints = c50*50+c100*100+cKatu*200+c300*300+cGeki*300
+		totalHits = cMiss+c50+c100+c300+cGeki+cKatu
+		return totalPoints / (totalHits * 300)
+	else:
+		# unknown gamemode
+		return 0
+
 
 def uleb128Decode(num):
 	shift = 0
@@ -257,7 +279,7 @@ for i in fileList:
 		["timeStamp", dataTypes.uInt64],
 		["rawReplay", dataTypes.rawReplay],
 	])
-	acc = calcAcc(replayData["count300"], replayData["count100"], replayData["count50"], replayData["countMiss"])*100
+	acc = calcAcc(replayData["count300"], replayData["count100"], replayData["count50"], replayData["countKatu"], replayData["countGeki"], replayData["countMiss"], replayData["gameMode"])*100
 
 	printVerbose("Replay read!")
 
